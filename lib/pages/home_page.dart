@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:she_sos_v1/pages/chat_page.dart';
 import 'package:she_sos_v1/pages/mapview_page.dart';
-import 'package:she_sos_v1/pages/profile_page.dart';
+import 'package:she_sos_v1/features/auth/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

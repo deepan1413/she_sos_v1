@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:she_sos_v1/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:she_sos_v1/themes/theme.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final void Function()? onToggle;
+  const LoginPage({super.key, required this.onToggle});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -13,9 +16,26 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   void _login() {
-    // Implement login logic here
-  }
+    //  login logic here
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+    final authCubit = context.read<AuthCubit>();
 
+    if (email.isNotEmpty && password.isNotEmpty) {
+      authCubit.login(email, password);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("PLEASE ENTER EMAIL AND PASSWORD")),
+      );
+    }
+  }
+@override
+  void dispose() {
+    // TODO: implement dispose
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
   void _forgotPassword() {
     // Implement forgot password logic here
   }
@@ -28,11 +48,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: EdgeInsets.all(AppSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 60),
+            SizedBox(height: 60),
             // Logo
             Container(
               width: 80,
@@ -41,13 +61,13 @@ class _LoginPageState extends State<LoginPage> {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.shield_rounded,
                 size: 44,
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: AppSpacing.xl),
 
             const Text(
               'Welcome Back',
@@ -107,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: widget.onToggle,
 
                   child: const Text('Create Account'),
                 ),

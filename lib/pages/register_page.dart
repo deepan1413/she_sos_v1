@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:she_sos_v1/themes/theme.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final void Function()? onToggle;
+
+  const RegisterPage({super.key, required this.onToggle});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -257,7 +259,20 @@ class _RegisterPageState extends State<RegisterPage> {
               onPressed: _register,
               child: const Text('Create Account'),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "already have an account?",
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+                TextButton(
+                  onPressed: widget.onToggle,
 
+                  child: const Text('login'),
+                ),
+              ],
+            ),
             const SizedBox(height: AppSpacing.xxl),
           ],
         ),
