@@ -1,0 +1,2 @@
+40:52 
+bloc for auth completed

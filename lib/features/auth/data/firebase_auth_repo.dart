@@ -1,22 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:she_sos_v1/features/auth/domain/entities/app_user.dart';
 import 'package:she_sos_v1/features/auth/domain/repos/auth_repo.dart';
-import 'package:she_sos_v1/mylogs/my_logs.dart';
+import 'package:she_sos_v1/configs/mylogs/my_logs.dart';
 
 class FirebaseAuthRepo implements AuthRepo {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   Future<AppUser?> getCurrentUser() async {
     try {
-      final  firebaseUser = firebaseAuth.currentUser;
-     
+      final firebaseUser = firebaseAuth.currentUser;
+
       if (firebaseUser != null) {
-        MyLog.highlight("FirebaseAuthRepo:== Current user: ${firebaseUser.uid}");
+        MyLog.highlight(
+          "FirebaseAuthRepo:== Current user: ${firebaseUser.uid}",
+        );
         return AppUser(
           uid: firebaseUser.uid,
           email: firebaseUser.email!,
           name: "",
+       
         );
       } else {
         MyLog.highlight("FirebaseAuthRepo:== No current user");
@@ -33,6 +38,7 @@ class FirebaseAuthRepo implements AuthRepo {
     String name,
     String email,
     String password,
+    
   ) async {
     try {
       UserCredential userCredential = await firebaseAuth
@@ -41,7 +47,14 @@ class FirebaseAuthRepo implements AuthRepo {
         uid: userCredential.user!.uid,
         email: email,
         name: name,
+       
       );
+
+      await firebaseFirestore
+          .collection("users")
+          .doc(user.uid)
+          .set(user.toJson());
+
       MyLog.highlight("FirebaseAuthRepo:== User signed up: ${user.uid}");
       return user;
     } catch (e) {
@@ -62,6 +75,7 @@ class FirebaseAuthRepo implements AuthRepo {
         uid: userCredential.user!.uid,
         email: email,
         name: "",
+       
       );
       MyLog.highlight("FirebaseAuthRepo:== User signed in: ${user.uid}");
       return user;

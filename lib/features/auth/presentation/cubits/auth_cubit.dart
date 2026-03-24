@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:she_sos_v1/features/auth/domain/entities/app_user.dart';
 import 'package:she_sos_v1/features/auth/domain/repos/auth_repo.dart';
 import 'package:she_sos_v1/features/auth/presentation/cubits/auth_states.dart';
-import 'package:she_sos_v1/mylogs/my_logs.dart';
+import 'package:she_sos_v1/configs/mylogs/my_logs.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepo authRepo;
@@ -54,13 +54,19 @@ class AuthCubit extends Cubit<AuthState> {
 
   //register
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(
+    String name,
+    String email,
+    String password,
+
+  ) async {
     try {
       emit(AuthLoading());
       final user = await authRepo.registerWithEmailandPassword(
         name,
         email,
-        password,
+        password
+       
       );
       if (user != null) {
         _currentUser = user;

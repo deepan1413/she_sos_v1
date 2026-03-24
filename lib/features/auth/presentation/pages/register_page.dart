@@ -1,7 +1,183 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:she_sos_v1/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:she_sos_v1/themes/theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+class RegisterPage extends StatefulWidget {
+  final void Function()? onToggle;
+
+  const RegisterPage({super.key, required this.onToggle});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
+
+  void _register() async {
+    if (_formKey.currentState!.validate()) {
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      final authcubit = context.read<AuthCubit>();
+
+      await authcubit.register(name, email, password);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("PLEASE ENTER EMAIL AND PASSWORD")),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Register"), centerTitle: true),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                const SizedBox(height: 20),
+
+                /// 🔹 Name
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: "Name",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter your name" : null,
+                ),
+
+                const SizedBox(height: 15),
+
+                /// 🔹 Email
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter your email" : null,
+                ),
+
+                const SizedBox(height: 15),
+
+                /// 🔹 Password
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) =>
+                      value!.length < 6 ? "Min 6 characters" : null,
+                ),
+
+                const SizedBox(height: 15),
+
+                /// 🔹 Confirm Password
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirm,
+                  decoration: InputDecoration(
+                    labelText: "Confirm Password",
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirm
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirm = !_obscureConfirm;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value != _passwordController.text) {
+                      return "Passwords do not match";
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 25),
+
+                /// 🔹 Register Button
+                ElevatedButton(
+                  onPressed: _register,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  child: const Text("Register"),
+                ),
+
+                const SizedBox(height: 20),
+
+                /// 🔹 Toggle to Login
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Already have an account?",
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                    TextButton(
+                      onPressed: widget.onToggle,
+
+                      child: const Text('Login'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/*
 class RegisterPage extends StatefulWidget {
   final void Function()? onToggle;
 
@@ -49,7 +225,63 @@ class _RegisterPageState extends State<RegisterPage> {
   final List<Map<String, TextEditingController>> _contacts = [
     {'name': TextEditingController(), 'phone': TextEditingController()},
   ];
-  void _register() {}
+  void _register() async {
+    final String name = _nameController.text;
+    final String password = _passwordController.text;
+    final String conPassword = _confirmPasswordController.text;
+    final String phone = _phoneController.text;
+    final String city = _cityController.text;
+    final String email = _emailController.text;
+
+    final String gender = _gender;
+    final String blood = _bloodGroup;
+    final bool volunter = _isVolunteer;
+    List<Map<String, String>> emergencyContacts = _contacts
+        .where(
+          (c) =>
+              c['name']!.text.trim().isNotEmpty &&
+              c['phone']!.text.trim().isNotEmpty,
+        )
+        .map(
+          (c) => {
+            'name': c['name']!.text.trim(),
+            'phone': c['phone']!.text.trim(),
+          },
+        )
+        .toList();
+    final authcubit = context.read<AuthCubit>();
+    if (password == conPassword) {
+      if (name.isNotEmpty && password.isNotEmpty && email.isNotEmpty) {
+        await authcubit.register(
+          name,
+          email,
+          password,
+          phone,
+          city,
+          gender,
+          blood,
+          volunter,
+          emergencyContacts,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("PLEASE ENTER EMAIL AND PASSWORD")),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _cityController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -291,3 +523,4 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
+*/

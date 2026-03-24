@@ -54,6 +54,7 @@ dependencies:
   socket_io_client:
   google_maps_flutter:
   http:
+  cloud_firestore: ^6.2.0
 
 dev_dependencies:
   flutter_test:
