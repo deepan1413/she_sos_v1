@@ -1,2 +1,3 @@
-40:52 
+1:08
 bloc for auth completed
+error on prfole cubit
